@@ -65,27 +65,34 @@ const contenido = document.getElementById("contenido");
 const dashboard = document.getElementById("dashboard");
 
 // ================= USUARIOS =================
-function getUsers(){
-  return JSON.parse(localStorage.getItem("users")) || {};
+async function getUsers(){
+  const ref = doc(db, "app", "users");
+  const snap = await getDoc(ref);
+
+  return snap.exists() ? snap.data() : {};
 }
 
-function saveUsers(users){
-  localStorage.setItem("users", JSON.stringify(users));
+async function saveUsers(users){
+  await setDoc(doc(db, "app", "users"), users);
 }
 
-function registerUser(){
-  let users = getUsers();
+fasync function registerUser(){
+  let users = await getUsers();
+
   if(users[user.value]){
     alert("Usuario ya existe");
     return;
   }
+
   users[user.value] = pass.value;
-  saveUsers(users);
+  await saveUsers(users);
+
   alert("Usuario creado");
 }
 
-function loginUser(){
-  let users = getUsers();
+async function loginUser(){
+  let users = await getUsers();
+
   if(users[user.value] === pass.value){
     localStorage.setItem("session", user.value);
     iniciarApp();
