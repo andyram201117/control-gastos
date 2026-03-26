@@ -88,7 +88,7 @@ async function saveUsers(users){
   await setDoc(doc(db, "app", "users"), users);
 }
 
-async function registerUser(){
+window.registerUser = async function(){
   let users = await getUsers();
 
   if(users[user.value]){
@@ -102,7 +102,7 @@ async function registerUser(){
   alert("Usuario creado");
 }
 
-async function loginUser(){
+window.registerUser = async function(){
   let users = await getUsers();
 
   if(users[user.value] === pass.value){
@@ -113,7 +113,7 @@ async function loginUser(){
   }
 }
 
-function logout(){
+window.logout = function(){
   localStorage.removeItem("session");
   location.reload();
 }
