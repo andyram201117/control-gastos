@@ -76,7 +76,7 @@ async function saveUsers(users){
   await setDoc(doc(db, "app", "users"), users);
 }
 
-fasync function registerUser(){
+async function registerUser(){
   let users = await getUsers();
 
   if(users[user.value]){
