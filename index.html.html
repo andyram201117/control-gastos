@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control Empresa Local 2026</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-100 to-indigo-200 min-h-screen p-6">
+
+<div class="max-w-6xl mx-auto">
+
+<!-- LOGIN -->
+<div id="login" class="text-center mt-20">
+  <h1 class="text-3xl font-bold mb-6">🔐 Acceso</h1>
+
+  <input id="user" placeholder="Usuario" class="p-2 border rounded m-2"><br>
+  <input id="pass" type="password" placeholder="Contraseña" class="p-2 border rounded m-2"><br>
+
+  <button onclick="loginUser()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl m-2">
+    Entrar
+  </button>
+
+  <button onclick="registerUser()" class="bg-green-600 text-white px-6 py-2 rounded-xl m-2">
+    Registrarse
+  </button>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<div class="flex justify-between mb-4">
+  <h1 class="text-2xl font-bold">💰 Control Empresa</h1>
+  <button onclick="logout()" class="text-red-500">Cerrar sesión</button>
+</div>
+
+<div class="mb-4">
+  <button onclick="mostrar('semana')" class="bg-blue-500 text-white px-4 py-2 rounded">Semanal</button>
+  <button onclick="mostrar('quincena')" class="bg-green-500 text-white px-4 py-2 rounded">Quincenal</button>
+  <button onclick="mostrarDashboard()" class="bg-yellow-500 text-white px-4 py-2 rounded">
+    📊 Ver gasto mensual
+  </button>
+</div>
+
+<div id="contenido"></div>
+
+<div id="dashboard" class="hidden mt-6 bg-white p-4 rounded-xl shadow">
+  <h2 class="font-bold mb-4">📈 Gastos Mensuales</h2>
+  <canvas id="chart"></canvas>
+</div>
+
+</div>
+</div>
+
+<script>
+// ===== REFERENCIAS =====
+const user = document.getElementById("user");
+const pass = document.getElementById("pass");
+const login = document.getElementById("login");
+const app = document.getElementById("app");
+const contenido = document.getElementById("contenido");
+const dashboard = document.getElementById("dashboard");
+
+// ================= USUARIOS =================
+function getUsers(){
+  return JSON.parse(localStorage.getItem("users")) || {};
+}
+
+function saveUsers(users){
+  localStorage.setItem("users", JSON.stringify(users));
+}
+
+function registerUser(){
+  let users = getUsers();
+  if(users[user.value]){
+    alert("Usuario ya existe");
+    return;
+  }
+  users[user.value] = pass.value;
+  saveUsers(users);
+  alert("Usuario creado");
+}
+
+function loginUser(){
+  let users = getUsers();
+  if(users[user.value] === pass.value){
+    localStorage.setItem("session", user.value);
+    iniciarApp();
+  } else {
+    alert("Datos incorrectos");
+  }
+}
+
+function logout(){
+  localStorage.removeItem("session");
+  location.reload();
+}
+
+function iniciarApp(){
+  login.style.display="none";
+  app.classList.remove("hidden");
+  window.currentUser = localStorage.getItem("session");
+}
+
+// ================= FECHAS =================
+function getSaturdays(y){
+  let d=new Date(y,0,1),r=[];
+  while(d.getFullYear()==y){
+    if(d.getDay()==6) r.push(new Date(d));
+    d.setDate(d.getDate()+1);
+  }
+  return r;
+}
+
+function getQuincenas(y){
+  let r=[];
+  for(let m=0;m<12;m++){
+    r.push(new Date(y,m,15));
+    r.push(new Date(y,m+1,0));
+  }
+  return r;
+}
+
+function f(d){return d.toISOString().split("T")[0]}
+
+// ================= STORAGE =================
+function saveData(key,data){
+  localStorage.setItem(currentUser+"_"+key, JSON.stringify(data));
+}
+
+function loadData(key){
+  return JSON.parse(localStorage.getItem(currentUser+"_"+key)) || [];
+}
+
+// ================= BLOQUES =================
+function block(date){
+  const key=f(date);
+  const saved=loadData(key);
+
+  let total = 0;
+  let html="";
+
+  for(let i=0;i<10;i++){
+    let valor = parseFloat(saved[i]?.m) || 0;
+    total += valor;
+
+    html+=`
+    <div class="flex gap-2">
+      <input class="c border p-2 w-2/3" value="${saved[i]?.c||""}" oninput="guardar(this)">
+      <input type="number" class="m border p-2 w-1/3" value="${saved[i]?.m||""}" oninput="guardar(this)">
+    </div>`;
+  }
+
+  return `
+  <div class="bg-white p-4 rounded-xl shadow mb-4" data-key="${key}">
+    <h3 class="font-bold mb-2">${key}</h3>
+    ${html}
+    <div class="mt-2 font-bold text-green-600 total">Total: $${total}</div>
+  </div>`;
+}
+
+// ================= GUARDAR =================
+function guardar(el){
+  const b=el.closest("[data-key]");
+  const key=b.dataset.key;
+
+  const c=b.querySelectorAll(".c");
+  const m=b.querySelectorAll(".m");
+
+  let data=[];
+  let total=0;
+
+  for(let i=0;i<10;i++){
+    let val=parseFloat(m[i].value)||0;
+    total+=val;
+
+    data.push({
+      c:c[i].value,
+      m:m[i].value
+    });
+  }
+
+  saveData(key,data);
+  b.querySelector(".total").textContent="Total: $"+total;
+}
+
+// ================= MOSTRAR =================
+function mostrar(tipo){
+  dashboard.classList.add("hidden");
+
+  let fechas = tipo==="semana"?getSaturdays(2026):getQuincenas(2026);
+
+  let html="";
+  fechas.forEach(d=>html+=block(d));
+
+  contenido.innerHTML=html;
+}
+
+// ================= DASHBOARD =================
+function mostrarDashboard(){
+  dashboard.classList.remove("hidden");
+
+  let meses={};
+
+  for(let i=0;i<localStorage.length;i++){
+    let key = localStorage.key(i);
+
+    if(key.startsWith(currentUser+"_")){
+      let data=JSON.parse(localStorage.getItem(key));
+      let mes=key.split("_")[1].slice(0,7);
+
+      let suma=0;
+      data.forEach(x=>suma+=parseFloat(x.m)||0);
+
+      meses[mes]=(meses[mes]||0)+suma;
+    }
+  }
+
+  const labels=Object.keys(meses);
+  const data=Object.values(meses);
+
+  new Chart(document.getElementById("chart"),{
+    type:'bar',
+    data:{labels,datasets:[{label:"Gasto",data}]}
+  });
+}
+
+// ================= AUTO LOGIN =================
+if(localStorage.getItem("session")){
+  iniciarApp();
+}
+</script>
+
+</body>
+</html>
