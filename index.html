@@ -247,11 +247,25 @@ window.mostrarDashboard = function(){
   const labels=Object.keys(meses);
   const data=Object.values(meses);
 
-  new Chart(document.getElementById("chart"),{
-    type:'bar',
-    data:{labels,datasets:[{label:"Gasto",data}]}
-  });
+  let myChart = null;
+  const ctx = document.getElementById("chart");
+
+// 🔥 destruir gráfica anterior si existe
+if(myChart){
+  myChart.destroy();
 }
+
+// 🔥 crear nueva gráfica
+myChart = new Chart(ctx,{
+  type:'bar',
+  data:{
+    labels,
+    datasets:[{
+      label:"Gasto",
+      data
+    }]
+  }
+});
 
 // ================= AUTO LOGIN =================
 if(localStorage.getItem("session")){
