@@ -188,7 +188,7 @@ function block(date){
 }
 
 // ================= GUARDAR =================
-function guardar(el){
+window.guardar = function(el){
   const b=el.closest("[data-key]");
   const key=b.dataset.key;
 
@@ -213,7 +213,7 @@ function guardar(el){
 }
 
 // ================= MOSTRAR =================
-function mostrar(tipo){
+window.mostrar = function(tipo){
   dashboard.classList.add("hidden");
 
   let fechas = tipo==="semana"?getSaturdays(2026):getQuincenas(2026);
@@ -225,7 +225,7 @@ function mostrar(tipo){
 }
 
 // ================= DASHBOARD =================
-function mostrarDashboard(){
+window.mostrarDashboard = function(){
   dashboard.classList.remove("hidden");
 
   let meses={};
