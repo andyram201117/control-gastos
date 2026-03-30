@@ -244,7 +244,6 @@ window.mostrarDashboard = function(){
     }
   }
   
-  Unexpected end of input
   const labels=Object.keys(meses);
   const data=Object.values(meses);
 
@@ -256,7 +255,8 @@ if(myChart){
 }
 
 // 🔥 crear nueva gráfica
-myChart = new Chart(ctx,{
+let myChart = null;
+  myChart = new Chart(ctx,{
   type:'bar',
   data:{
     labels,
@@ -266,6 +266,7 @@ myChart = new Chart(ctx,{
     }]
   }
 });
+}
 
 // ================= AUTO LOGIN =================
 if(localStorage.getItem("session")){
