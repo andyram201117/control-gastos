@@ -225,7 +225,8 @@ window.mostrar = function(tipo){
 }
 
 // ================= DASHBOARD =================
-window.mostrarDashboard = function(){
+let myChart = null;
+  window.mostrarDashboard = function(){
   dashboard.classList.remove("hidden");
 
   let meses={};
@@ -255,7 +256,6 @@ if(myChart){
 }
 
 // 🔥 crear nueva gráfica
-let myChart = null;
   myChart = new Chart(ctx,{
   type:'bar',
   data:{
