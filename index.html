@@ -56,7 +56,8 @@
 </div>
 
 <script type="module">
-  // 🔥 Firebase imports
+
+// 🔥 Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -69,18 +70,23 @@ const firebaseConfig = {
   messagingSenderId: "654747584656",
   appId: "1:654747584656:web:32234f5709c56e3125f015"
 };
+
+// 🔥 Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // ===== REFERENCIAS =====
 const user = document.getElementById("user");
 const pass = document.getElementById("pass");
 const login = document.getElementById("login");
 const appDiv = document.getElementById("app");
 const contenido = document.getElementById("contenido");
-const dashboard = document.getElementById("dashboard");  
+const dashboard = document.getElementById("dashboard");
+
 // ================= USUARIOS =================
 async function getUsers(){
   const ref = doc(db, "app", "users");
   const snap = await getDoc(ref);
-
   return snap.exists() ? snap.data() : {};
 }
 
@@ -102,7 +108,7 @@ window.registerUser = async function(){
   alert("Usuario creado");
 }
 
-window.registerUser = async function(){
+window.loginUser = async function(){
   let users = await getUsers();
 
   if(users[user.value] === pass.value){
@@ -252,28 +258,7 @@ if(localStorage.getItem("session")){
   iniciarApp();
 }
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyA3vbooNWzUbiZ4Xlzmd5D0whpgzzPp8yI",
-  authDomain: "control-gastos-e3412.firebaseapp.com",
-  projectId: "control-gastos-e3412",
-  storageBucket: "control-gastos-e3412.firebasestorage.app",
-  messagingSenderId: "654747584656",
-  appId: "1:654747584656:web:32234f5709c56e3125f015"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// 🔥 HACER FUNCIONES GLOBALES
-window.db = db;
-window.setDoc = setDoc;
-window.getDoc = getDoc;
-window.doc = doc;
-  }
 </script>
+
 </body>
 </html>
