@@ -247,6 +247,7 @@ window.mostrarDashboard = function(){
   const labels=Object.keys(meses);
   const data=Object.values(meses);
 
+  let myChart = null;
   const ctx = document.getElementById("chart");
 
 // 🔥 destruir gráfica anterior si existe
